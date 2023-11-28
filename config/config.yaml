@@ -1,0 +1,17 @@
+#data
+path: 
+max_len: 50
+batch_size: 32
+#LSTM
+embedding_dim: 128
+hidden_dim: 128
+num_layers: 2
+dropout: 0.2
+output_dim: 17
+#train
+num_epochs: 100
+patience: 5
+learning_rate: 0.01
+best_metric: accuracy
+save_path:
+model: LSTM
