@@ -9,13 +9,18 @@ class LSTMModel(nn.Module):
         self.num_layers = config['num_layers']
         self.dropout = config['dropout'] 
         self.output_dim = config['output_dim']
+        self.vocab_size = config['vocab_size']
+        # Thêm lớp nhúng
+        self.embedding = nn.Embedding(self.vocab_size, self.embedding_dim)
 
-        # Chỉ sử dụng LSTM, không sử dụng embedding layer
-        self.lstm = nn.LSTM(embedding_dim=self.embedding_dim, hidden_size=self.hidden_dim, num_layers=self.num_layers, dropout=self.dropout, batch_first=True)
+        # LSTM với lớp nhúng động
+        self.lstm = nn.LSTM(input_size=self.embedding_dim, hidden_size=self.hidden_dim, num_layers=self.num_layers, dropout=self.dropout, batch_first=True)
+        
         self.fc = nn.Linear(self.hidden_dim, self.output_dim)
 
     def forward(self, x):
-        lstm_out, _ = self.lstm(x)
+        embedded = self.embedding(x)
+        lstm_out, _ = self.lstm(embedded)
         output = self.fc(lstm_out[:, -1, :])
         return output
 

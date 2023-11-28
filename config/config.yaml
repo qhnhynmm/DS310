@@ -1,7 +1,8 @@
 #data
-path: 
-max_len: 50
+path: /content/drive/MyDrive/DS310/ner_dataset.csv
+max_len: 100
 batch_size: 32
+vocab_size: 35178
 #LSTM
 embedding_dim: 128
 hidden_dim: 128
@@ -13,5 +14,5 @@ num_epochs: 100
 patience: 5
 learning_rate: 0.01
 best_metric: accuracy
-save_path:
+save_path: ./save
 model: LSTM
