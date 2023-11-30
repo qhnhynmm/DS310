@@ -25,12 +25,31 @@ class NERDataset(torch.utils.data.Dataset):
 
     def process_data(self):
         sentences = self.get_sentences()
-        X = [[self.vocab.word_to_idx.get(w[0], self.vocab.word_to_idx['<UNK>']) for w in s] for s in sentences]
-        X = pad_sequence([torch.tensor(x, dtype=torch.float32) for x in X], padding_value=float(self.vocab.pad_token_id()), batch_first=True)
-        y = [self.label_encoder.transform([w[2] for w in s]) for s in sentences]
-        y = pad_sequence([torch.tensor(label, dtype=torch.long) for label in y], padding_value=-1, batch_first=True)
+        X = [
+            [
+                self.vocab.word_to_idx.get(w[0], self.vocab.word_to_idx['<UNK>']) 
+                for w in s[:self.max_len]
+            ] 
+            for s in sentences
+        ]
+        X = pad_sequence(
+            [torch.tensor(x, dtype=torch.float32) for x in X], 
+            padding_value=float(self.vocab.pad_token_id()), 
+            batch_first=True
+        )
+
+        y = [
+            self.label_encoder.transform([w[2] for w in s[:self.max_len]])
+            for s in sentences
+        ]
+
+        y = pad_sequence([torch.tensor(label, dtype=torch.long) for label in y], 
+                         padding_value=-1, 
+                         batch_first=True)
 
         return X, y
+
+
 
     def get_sentences(self):
         agg_func = lambda s: [(w, p, t) for w, p, t in zip(s["Word"].values.tolist(),
@@ -67,3 +86,28 @@ class Load_data:
         test_loader = torch.utils.data.DataLoader(test_data, batch_size=self.batch_size, shuffle=False)
 
         return train_loader, dev_loader, test_loader
+
+# if __name__ == "__main__":
+#     # Tạo đối tượng Load_data
+#     config = {
+#         'path': "/content/drive/MyDrive/DS310/ner_dataset.csv",  # Thay đường dẫn với đường dẫn thực tế của bạn
+#         'max_len': 50,  # Thay giá trị max_len bằng giá trị thực tế của bạn
+#         'batch_size': 32  # Thay giá trị batch_size bằng giá trị thực tế của bạn
+#     }
+#     data_loader = Load_data(config)
+
+#     # Hiển thị thông tin về dữ liệu
+#     print("Loading data...")
+#     train_loader, dev_loader, test_loader = data_loader.load_data_train_dev_test()
+
+#     # In thông tin về dữ liệu
+#     print(f"Number of training samples: {len(train_loader.dataset)}")
+#     print(f"Number of validation samples: {len(dev_loader.dataset)}")
+#     print(f"Number of test samples: {len(test_loader.dataset)}")
+
+#     # In một vài mẫu dữ liệu từ training loader
+#     for batch in train_loader:
+#         inputs, labels = batch['inputs'], batch['labels']
+#         print(inputs)
+#         print("Sample labels shape:", labels.shape)
+#         break  # Chỉ cần in ra một batch đầu tiên để kiểm tra
