@@ -27,7 +27,6 @@ class NERDataset(torch.utils.data.Dataset):
         sentences = self.get_sentences()
         X = [[self.vocab.word_to_idx.get(w[0], self.vocab.word_to_idx['<UNK>']) for w in s] for s in sentences]
         X = pad_sequence([torch.tensor(x, dtype=torch.float32) for x in X], padding_value=float(self.vocab.pad_token_id()), batch_first=True)
-        all_labels = self.label_encoder.classes_
         y = [self.label_encoder.transform([w[2] for w in s]) for s in sentences]
         y = pad_sequence([torch.tensor(label, dtype=torch.long) for label in y], padding_value=-1, batch_first=True)
 
