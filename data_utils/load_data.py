@@ -19,7 +19,7 @@ class NERDataset(torch.utils.data.Dataset):
         return len(self.X)
 
     def __getitem__(self, idx):
-        inputs = torch.tensor(self.X[idx])
+        inputs = torch.tensor(self.X[idx], dtype = torch.float32)
         labels = torch.tensor(self.y[idx], dtype=torch.long)
         return {'inputs': inputs, 'labels': labels}
 
