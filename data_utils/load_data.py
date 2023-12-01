@@ -19,7 +19,7 @@ class NERDataset(torch.utils.data.Dataset):
         return len(self.X)
 
     def __getitem__(self, idx):
-        inputs = torch.tensor(self.X[idx], dtype = torch.float32)
+        inputs = torch.tensor(self.X[idx], dtype = torch.int32)
         labels = torch.tensor(self.y[idx], dtype=torch.long)
         return {'inputs': inputs, 'labels': labels}
 
@@ -44,7 +44,7 @@ class NERDataset(torch.utils.data.Dataset):
         ]
 
         y = pad_sequence([torch.tensor(label, dtype=torch.long) for label in y], 
-                         padding_value=-1, 
+                         padding_value=17, 
                          batch_first=True)
 
         return X, y
@@ -68,6 +68,7 @@ class Load_data:
         df = pd.read_csv(self.path, encoding="latin1")
         df = df.fillna(method="ffill")
         vocab = NERVocab(df)
+        # print(vocab.vocab_size())
         label_encoder = LabelEncoder()
         all_tags = df['Tag'].unique()
         label_encoder.fit(all_tags)

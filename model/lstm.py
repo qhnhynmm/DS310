@@ -25,7 +25,7 @@
 #         return output
 import torch
 import torch.nn as nn
-
+import torch.nn.functional as F
 class LSTMModel(nn.Module):
     def __init__(self, config):
         super(LSTMModel, self).__init__()
@@ -39,17 +39,15 @@ class LSTMModel(nn.Module):
         self.dropout_layer = nn.Dropout(p=self.dropout)
         self.lstm = nn.LSTM(self.embedding_dim, self.hidden_dim, 
                             num_layers=self.num_layers, batch_first=True, 
-                            dropout=self.dropout, bidirectional=True)  # Adjusted the LSTM layer
-        self.dense = nn.Linear(self.hidden_dim * 2, self.output_dim)  # Adjusted the input size for the linear layer
-        self.softmax = nn.Softmax(dim=2)
+                            dropout=self.dropout)  # Adjusted the LSTM layer
+        self.dense = nn.Linear(self.hidden_dim, 18)  # Adjusted the input size for the linear layer
 
     def forward(self, x):
         x = self.embedding(x)
         x = self.dropout_layer(x)
         lstm_out, _ = self.lstm(x)
         out = self.dense(lstm_out)
-        out = self.softmax(out)
-        return out
+        return F.log_softmax(out,dim=-1)
     
 class LSTM(nn.Module):
     def __init__(self, config):
@@ -60,7 +58,7 @@ class LSTM(nn.Module):
     def forward(self, inputs, labels=None):
         if labels is not None:
             logits = self.LSTMModel(inputs)
-            loss = self.loss_fn(logits, labels)
+            loss = self.loss_fn(logits.view(-1,18), labels.view(-1))
             return logits, loss
         else:
             logits = self.LSTMModel(inputs)

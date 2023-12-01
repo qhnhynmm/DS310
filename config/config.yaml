@@ -1,14 +1,14 @@
 #data
 path: /content/drive/MyDrive/DS310/ner_dataset.csv
-max_len: 100
+max_len: 50
 batch_size: 32
-vocab_size: 35178
+vocab_size: 35179
 #LSTM
 embedding_dim: 128
 hidden_dim: 128
 num_layers: 2
 dropout: 0.2
-output_dim: 17
+output_dim: 50
 #train
 num_epochs: 100
 patience: 5

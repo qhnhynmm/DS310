@@ -5,9 +5,9 @@ class NERVocab:
         self.build_vocab(data)
 
     def build_vocab(self, data):
-        unique_words = set(data['Word'].tolist())
-        self.word_to_idx = {word: idx + 1 for idx, word in enumerate(unique_words)}
-        self.word_to_idx['<UNK>'] = 0  # Add <UNK> token
+        unique_words = set(data['Word'].tolist()) | {"<UNK>"}
+        self.word_to_idx = {word: idx  for idx, word in enumerate(unique_words)}
+        self.word_to_idx['<UNK>'] = len(self.word_to_idx)+1   # Add <UNK> token
         self.idx_to_word = {idx: word for word, idx in self.word_to_idx.items()}
 
     def convert_tokens_to_ids(self, tokens):
