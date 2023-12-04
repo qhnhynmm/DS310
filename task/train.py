@@ -2,28 +2,35 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import os
-from data_utils.load_data import Load_data
+from data_utils.load_data import Get_Loader
+from data_utils.load_data_bert import Get_Loader_Bert
 from evaluate.evaluate import compute_score
-from model.lstm import LSTM
 from tqdm import tqdm
-
+from model.build_model import build_model
 class Classify_Task:
     def __init__(self, config):
-        self.num_epochs = config['num_epochs']
-        self.patience = config['patience']
-        self.learning_rate = config['learning_rate']
-        self.best_metric=config['best_metric']
-        self.save_path=os.path.join(config['save_path'],config['model'])
-        self.dataloader = Load_data(config)
+        self.num_epochs = config['train']['num_train_epochs']
+        self.patience = config['train']['patience']
+        self.learning_rate = config['train']['learning_rate']
+        self.best_metric=config['train']['metric_for_best_model']
+        self.save_path=os.path.join(config['train']['output_dir'],config['model']['type_model'])
+        self.weight_decay=config['train']['weight_decay']
+        if config['model']['type_model']=='lstm':
+            self.dataloader = Get_Loader(config)
+        if config['model']['type_model']=='bert':
+            self.dataloader = Get_Loader_Bert(config)     
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.base_model = LSTM(config).to(self.device)
-        self.optimizer = optim.Adam(self.base_model.parameters(), lr=self.learning_rate)
-        # self.optimizer = optim.SGD(self.base_model.parameters(),lr=self.learning_rate,momentum=0.5)
+        self.base_model = build_model(config).to(self.device)
+        self.optimizer = optim.Adam(self.base_model.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+        self.scaler = torch.cuda.amp.GradScaler()
+        lambda1 = lambda epoch: 0.95 ** epoch
+        self.scheduler = torch.optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=lambda1)
+
     def training(self):
         if not os.path.exists(self.save_path):
           os.makedirs(self.save_path)
 
-        train,valid,_ = self.dataloader.load_data_train_dev_test()
+        train,valid = self.dataloader.load_data_train_dev()
 
         if os.path.exists(os.path.join(self.save_path, 'last_model.pth')):
             checkpoint = torch.load(os.path.join(self.save_path, 'last_model.pth'))
@@ -52,19 +59,20 @@ class Classify_Task:
             valid_recall=0.
             train_loss = 0.
             for it,item in enumerate(tqdm(train)):
-                inputs, labels = item['inputs'].to(self.device), item['labels'].to(self.device)
+                with torch.autocast(device_type='cuda', dtype=torch.float32, enabled=True):
+                    logits,loss = self.base_model(item['inputs'],item['labels'])
+                self.scaler.scale(loss).backward()
+                self.scaler.step(self.optimizer)
+                self.scaler.update()
                 self.optimizer.zero_grad()
-                logits,loss = self.base_model(inputs,labels)
-                loss.backward()
-                self.optimizer.step()
                 train_loss += loss
 
             with torch.no_grad():
                 for it,item in enumerate(tqdm(valid)):
-                    inputs, labels = item['inputs'].to(self.device), item['labels'].to(self.device)
-                    logits = self.base_model(inputs)
+                    with torch.autocast(device_type='cuda', dtype=torch.float32, enabled=True):
+                        logits = self.base_model(item['inputs'])
                     preds = logits.argmax(-1)
-                    acc, f1, precision, recall=compute_score(labels.cpu().numpy(),preds.cpu().numpy())
+                    acc, f1, precision, recall=compute_score(item['labels'].cpu().numpy(),preds.cpu().numpy())
                     valid_acc+=acc
                     valid_f1+=f1
                     valid_precision+=precision

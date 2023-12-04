@@ -1,0 +1,29 @@
+data:
+  dataset_folder: data
+  train_dataset: train.csv
+  val_dataset: dev.csv
+  test_dataset: test.csv
+lstm:
+  embedding_dim: 128
+  hidden_dim: 128
+  num_layers: 2
+  dropout: 0.2
+  output_dim: 50
+model:
+  type_model: lstm
+
+train:
+  output_dir: checkpoint
+  seed: 12345
+  num_train_epochs: 100
+  patience: 5
+  learning_rate: 2.0e-3
+  weight_decay: 1.0e-3
+  metric_for_best_model: f1
+ train_batch_size: 8
+ valid_batch_size: 8
+
+inference:
+  with_labels: True
+  test_dataset: /content/data/test.csv
+  batch_size: 2048

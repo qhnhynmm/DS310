@@ -1,0 +1,37 @@
+data:
+  dataset_folder: data
+  train_dataset: train.csv
+  val_dataset: dev.csv
+  test_dataset: test.csv
+
+tokenizer:
+  padding: max_length
+  max_input_length: 50
+  truncation: True
+  return_attention_mask: True
+  num_label: 17
+text_embedding:
+  model_name: bert-base-cased
+  freeze: False
+  d_features: 768
+  dropout: 0.2
+
+model:
+  type_model: bert
+  dropout: 0.2
+
+train:
+  output_dir: checkpoint
+  seed: 12345
+  num_train_epochs: 100
+  patience: 5
+  learning_rate: 2.0e-5
+  weight_decay: 1.0e-4
+  metric_for_best_model: f1
+  per_device_train_batch_size: 16
+  per_device_valid_batch_size: 16
+
+inference:
+  with_labels: True
+  test_dataset: data/test.csv
+  batch_size: 64

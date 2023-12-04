@@ -1,46 +1,25 @@
-# import torch
-# import torch.nn as nn
-
-# class LSTMModel(nn.Module):
-#     def __init__(self, config):
-#         super(LSTMModel, self).__init__()
-#         self.embedding_dim = config['embedding_dim']
-#         self.hidden_dim = config['hidden_dim']
-#         self.num_layers = config['num_layers']
-#         self.dropout = config['dropout'] 
-#         self.output_dim = config['output_dim']
-#         self.vocab_size = config['vocab_size']
-#         # Thêm lớp nhúng
-#         self.embedding = nn.Embedding(self.vocab_size, self.embedding_dim)
-
-#         # LSTM với lớp nhúng động
-#         self.lstm = nn.LSTM(input_size=self.embedding_dim, hidden_size=self.hidden_dim, num_layers=self.num_layers, dropout=self.dropout, batch_first=True)
-        
-#         self.fc = nn.Linear(self.hidden_dim, self.output_dim)
-
-#     def forward(self, x):
-#         embedded = self.embedding(x)
-#         lstm_out, _ = self.lstm(embedded)
-#         output = self.fc(lstm_out[:, -1, :])
-#         return output
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-class LSTMModel(nn.Module):
+from data_utils.vocab import NERVocab
+from data_utils.load_data_lstm import create_ans_space
+
+class LSTM(nn.Module):
     def __init__(self, config):
-        super(LSTMModel, self).__init__()
-        self.embedding_dim = config['embedding_dim']
-        self.hidden_dim = config['hidden_dim']
-        self.num_layers = config['num_layers']
-        self.dropout = config['dropout'] 
-        self.output_dim = config['output_dim']
-        self.vocab_size = config['vocab_size']
-        self.embedding = nn.Embedding(self.vocab_size, self.embedding_dim)
+        super(LSTM, self).__init__()
+        self.embedding_dim = config['lstm']['embedding_dim']
+        self.hidden_dim = config['lstm']['hidden_dim']
+        self.num_layers = config['lstm']['num_layers']
+        self.dropout = config['lstm']['dropout'] 
+        self.vocab = NERVocab(config)
+        self.POS_space,self.Tag_space=create_ans_space(config)
+    
+        self.embedding = nn.Embedding(self.vocab.vocab_size(), self.embedding_dim)
         self.dropout_layer = nn.Dropout(p=self.dropout)
         self.lstm = nn.LSTM(self.embedding_dim, self.hidden_dim, 
                             num_layers=self.num_layers, batch_first=True, 
-                            dropout=self.dropout)  # Adjusted the LSTM layer
-        self.dense = nn.Linear(self.hidden_dim, 18)  # Adjusted the input size for the linear layer
+                            dropout=self.dropout) 
+        self.dense = nn.Linear(self.hidden_dim,len(self.Tag_space)+1)
 
     def forward(self, x):
         x = self.embedding(x)
@@ -49,17 +28,20 @@ class LSTMModel(nn.Module):
         out = self.dense(lstm_out)
         return F.log_softmax(out,dim=-1)
     
-class LSTM(nn.Module):
+class LSTM_Model(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.LSTMModel = LSTMModel(config)
+        self.lstm = LSTM(config)
         self.loss_fn = nn.CrossEntropyLoss()
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def forward(self, inputs, labels=None):
+        inputs=inputs.to(self.device)
         if labels is not None:
-            logits = self.LSTMModel(inputs)
-            loss = self.loss_fn(logits.view(-1,18), labels.view(-1))
+            labels=labels.to(self.device)
+            logits = self.lstm(inputs)
+            loss = self.loss_fn(logits.view(-1,logits.size(-1)), labels.view(-1))
             return logits, loss
         else:
-            logits = self.LSTMModel(inputs)
+            logits = self.lstm(inputs)
             return logits
