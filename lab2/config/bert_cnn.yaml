@@ -2,7 +2,7 @@ base:
   use_cuda: True
 
 data:
-  dataset_folder: vietnamese-sentiment-analysis/data
+  dataset_folder: /content/drive/MyDrive/DS310
   train_dataset: train.csv
   val_dataset: dev.csv
   test_dataset: test.csv
