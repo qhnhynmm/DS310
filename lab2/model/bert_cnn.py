@@ -22,7 +22,8 @@ class TextCNN_Model(nn.Module):
 
     def forward(self, text: List[str], labels: Optional[torch.LongTensor] = None):
         if self.embed_type not in ['count_vector','tf_idf']:
-            embbed, mask = self.text_embbeding(text)
+            # embbed, mask = self.text_embbeding(text)
+            embbed = self.text_embbeding(text)
         else:
             embbed=self.text_embbeding(text)
             mask=None
