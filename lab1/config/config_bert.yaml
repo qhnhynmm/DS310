@@ -13,12 +13,6 @@ tokenizer:
 text_embedding:
   text_encoder: bert-base-cased
   freeze: False
-  use_lora: False
-  # lora_target_modules: ["q", ".k", "v", ".o", "wi_0", "wi_1", "wo"]
-  lora_target_modules: ["q", "v"]
-  lora_r: 8
-  lora_alpha: 16
-  lora_dropout: 0.05
   d_features: 768
   dropout: 0.2
 
