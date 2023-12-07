@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from data_utils.vocab import NERVocab
-from data_utils.load_data_lstm import create_ans_space
+from data_utils.vocab import create_ans_space
 
 class LSTM(nn.Module):
     def __init__(self, config):
@@ -19,7 +19,7 @@ class LSTM(nn.Module):
         self.lstm = nn.LSTM(self.embedding_dim, self.hidden_dim, 
                             num_layers=self.num_layers, batch_first=True, 
                             dropout=self.dropout) 
-        self.dense = nn.Linear(self.hidden_dim,len(self.Tag_space)+1)
+        self.dense = nn.Linear(self.hidden_dim,len(self.Tag_space)+3)
 
     def forward(self, x):
         x = self.embedding(x)
@@ -32,7 +32,8 @@ class LSTM_Model(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.lstm = LSTM(config)
-        self.loss_fn = nn.CrossEntropyLoss()
+        self.POS_space,self.Tag_space=create_ans_space(config)
+        self.loss_fn = nn.CrossEntropyLoss(ignore_index=len(self.Tag_space))
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def forward(self, inputs, labels=None):
