@@ -3,7 +3,6 @@ from torch import nn
 from torch.nn import functional as F
 from transformers import  AutoModel, AutoTokenizer, AutoModelForTokenClassification
 from typing import List, Dict, Optional
-from peft import LoraConfig, get_peft_model, prepare_model_for_int8_training, TaskType
 from data_utils.vocab import create_ans_space
 
 #design for phobert, xlm-roberta, videberta, bartpho, pretrained in english also supported 
