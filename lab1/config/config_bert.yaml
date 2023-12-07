@@ -9,10 +9,16 @@ tokenizer:
   max_input_length: 50
   truncation: True
   return_attention_mask: True
-  num_label: 17
+
 text_embedding:
-  model_name: bert-base-cased
+  text_encoder: bert-base-cased
   freeze: False
+  use_lora: False
+  # lora_target_modules: ["q", ".k", "v", ".o", "wi_0", "wi_1", "wo"]
+  lora_target_modules: ["q", "v"]
+  lora_r: 8
+  lora_alpha: 16
+  lora_dropout: 0.05
   d_features: 768
   dropout: 0.2
 
@@ -27,9 +33,9 @@ train:
   patience: 5
   learning_rate: 2.0e-5
   weight_decay: 1.0e-4
-  metric_for_best_model: f1
-  train_batch_size: 16
-  valid_batch_size: 16
+  metric_for_best_model: accuracy
+  per_device_train_batch_size: 64
+  per_device_valid_batch_size: 64
 
 inference:
   with_labels: True

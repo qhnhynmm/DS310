@@ -15,7 +15,6 @@ def create_vocab(config: Dict):
             "test": os.path.join(data_folder, test_set)
         }
     )
-
     word_counts = {}
 
     for data_file in dataset.values():
@@ -29,7 +28,7 @@ def create_vocab(config: Dict):
                         word_counts[word] += 1
         except:
             pass
-    word_counts['unknown'] = len(word_counts) + 1
+    word_counts['UNK'] = len(word_counts) + 1
     sorted_word_counts = dict(sorted(word_counts.items(), key=lambda x: x[1], reverse=True))
     vocab = list(sorted_word_counts.keys())
 

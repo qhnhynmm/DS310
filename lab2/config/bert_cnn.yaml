@@ -27,10 +27,6 @@ model:
   name: sentiment_analysis  # Custom name for the model
   intermediate_dims: 512
   dropout: 0.2
-
-early_stoping:
-  early_stopping_patience: 5
-
 train:
   output_dir: checkpoint
   seed: 12345
