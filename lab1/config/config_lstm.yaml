@@ -24,7 +24,7 @@ model:
 train:
   output_dir: checkpoint
   seed: 12345
-  num_train_epochs: 5
+  num_train_epochs: 100
   patience: 5
   learning_rate: 2.0e-3
   weight_decay: 1.0e-4
