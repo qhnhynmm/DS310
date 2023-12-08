@@ -3,7 +3,7 @@ data:
   train_dataset: train.csv
   val_dataset: dev.csv
   test_dataset: test.csv
-  use_id: False # nếu set là True thì có sử dụng thông tin id, ngược lại thì không
+  use_id: False
 
 tokenizer:
   padding: max_length
@@ -34,5 +34,5 @@ train:
 
 inference:
   with_labels: True
-  test_dataset: /content/data/test.csv
+  test_dataset: /content/DS310/lab1/data/test.csv
   batch_size: 2048
