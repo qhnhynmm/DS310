@@ -1,5 +1,5 @@
 data:
-  dataset_folder: data
+  dataset_folder: /content/DS310/lab1/data
   train_dataset: train.csv
   val_dataset: dev.csv
   test_dataset: test.csv
@@ -33,5 +33,5 @@ train:
 
 inference:
   with_labels: True
-  test_dataset: data/test.csv
+  test_dataset: /content/DS310/lab1/data/test.csv
   batch_size: 64
