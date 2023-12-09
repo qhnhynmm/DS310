@@ -15,7 +15,10 @@ class Classify_Task:
         self.save_path = os.path.join(config['train']['output_dir'], config['model']['type_model'])
         self.weight_decay = config['train']['weight_decay']
         self.dataloader = loadDataset(config)
-        self.answer_space = self.dataloader["answer_space"]
+        if config['train']['task'] == "sentiment":
+            self.answer_space = self.dataloader["answer_space_sentiment"]
+        if config['train']['task'] == "topic":
+            self.answer_space = self.dataloader["answer_space_topic"]
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.base_model = createTextCNN_Model(config, self.answer_space).to(self.device)
         self.optimizer = optim.Adam(self.base_model.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
