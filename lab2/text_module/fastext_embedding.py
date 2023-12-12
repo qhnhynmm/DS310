@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from data_utils.vocab import Vocab
 import fasttext
 from torch.nn.utils.rnn import pad_sequence
 from typing import List, Dict, Optional
@@ -11,7 +10,6 @@ class Fastext_Embedding(nn.Module):
     def __init__(self, config):
         super(Fastext_Embedding, self).__init__()
         self.embedding_dim = config['text_embedding']['d_features']
-        self.vocab = Vocab(config)
         self.embedding = fasttext.load_model('./cc.vi.300.bin')
         self.dropout = nn.Dropout(config['text_embedding']['dropout'])
         self.gelu = nn.GELU()

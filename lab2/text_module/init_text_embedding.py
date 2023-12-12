@@ -1,4 +1,4 @@
-from text_module.pretrained_embedding import Text_Embedding
+from text_module.embedding import Text_Embedding
 from text_module.fastext_embedding import Fastext_Embedding
 
 def build_text_embbeding(config):
