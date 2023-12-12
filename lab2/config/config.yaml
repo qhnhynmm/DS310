@@ -2,10 +2,10 @@ base:
   use_cuda: True
 
 data:
-  dataset_folder: /content/drive/MyDrive/DS310
-  train_dataset: train.csv
-  val_dataset: dev.csv
-  test_dataset: test.csv
+  dataset_folder: /content/DS310/lab2/data
+  train_dataset: train_UIT-VSFC.csv
+  val_dataset: dev_UIT-VSFC.csv
+  test_dataset: test_UIT-VSFC.csv
 
 tokenizer:
   padding: max_length
@@ -24,7 +24,7 @@ text_embedding:
 
 model:
   type_model: bert_cnn
-  name: sentiment  # Custom name for the model
+  name: sentiment_analysis  # Custom name for the model
   intermediate_dims: 512
   dropout: 0.2
 train:
