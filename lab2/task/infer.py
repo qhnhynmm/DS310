@@ -7,6 +7,7 @@ import os
 class Inference:
     def __init__(self, config):
         self.save_path = os.path.join(config['train']['output_dir'], config['model']['type_model'])
+        self.dataloader = DatasetLoader(config)
         self.dataloader = self.dataloader.load_dataset()
         self.answer_space = self.dataloader["answer_space"]
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
