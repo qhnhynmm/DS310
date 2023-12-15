@@ -24,7 +24,7 @@ text_embedding:
 
 model:
   type_model: classify
-  name: sentiment  
+  name: sentiment  # hoặc topic
   intermediate_dims: 512
   dropout: 0.2
 train:
