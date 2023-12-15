@@ -1,13 +1,13 @@
 import torch
 from tqdm import tqdm
-from data_utils.load_data import loadDataset
+from data_utils.load_data import DatasetLoader
 from evaluate.evaluate import compute_score
 from model.init_model import build_model
 import os
 class Inference:
     def __init__(self, config):
         self.save_path = os.path.join(config['train']['output_dir'], config['model']['type_model'])
-        self.dataloader = loadDataset(config)
+        self.dataloader = self.dataloader.load_dataset()
         self.answer_space = self.dataloader["answer_space"]
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.base_model = build_model(config, self.answer_space).to(self.device)

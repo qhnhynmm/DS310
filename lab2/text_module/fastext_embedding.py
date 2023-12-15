@@ -30,6 +30,7 @@ class Fastext_Embedding(nn.Module):
         features=[]
         for text in input_texts:
             text_feature = [torch.tensor(self.embedding.get_sentence_vector(word.lower())) for word in text.split()[:self.max_length]]
+            print(text_feature.shape)
             text_feature=torch.stack(text_feature)
             text_feature = self.pad_tensor(text_feature,self.max_length,0)
             features.append(text_feature)

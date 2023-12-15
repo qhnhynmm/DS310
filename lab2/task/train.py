@@ -1,10 +1,10 @@
 import torch
 import torch.optim as optim
 import os
-from data_utils.load_data import loadDataset
+from data_utils.load_data import DatasetLoader
 from evaluate.evaluate import compute_score
 from tqdm import tqdm
-from model.init_model import createTextCNN_Model
+from model.init_model import build_model
 
 class Classify_Task:
     def __init__(self, config):
@@ -14,13 +14,12 @@ class Classify_Task:
         self.best_metric = config['train']['metric_for_best_model']
         self.save_path = os.path.join(config['train']['output_dir'], config['model']['type_model'])
         self.weight_decay = config['train']['weight_decay']
-        self.dataloader = loadDataset(config)
-        if config['train']['task'] == "sentiment":
-            self.answer_space = self.dataloader["answer_space_sentiment"]
-        if config['train']['task'] == "topic":
-            self.answer_space = self.dataloader["answer_space_topic"]
+        self.dataloader = DatasetLoader(config)
+        self.dataloader = self.dataloader.load_dataset()
+        self.answer_space = self.dataloader["answer_space"]
+
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.base_model = createTextCNN_Model(config, self.answer_space).to(self.device)
+        self.base_model = build_model(config, self.answer_space).to(self.device)
         self.optimizer = optim.Adam(self.base_model.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
         self.scaler = torch.cuda.amp.GradScaler()
         lambda1 = lambda epoch: 0.95 ** epoch

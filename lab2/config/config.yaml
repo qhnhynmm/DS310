@@ -15,19 +15,20 @@ tokenizer:
   return_attention_mask: True
 
 text_embedding:
-  type: pretrained #có 3 loại, pretrained,count_vector,tf_idf,nếu ko xài ptretrain cnn phải chỉnh kernel_size bằng 1
+  type: fastext 
   text_encoder: vinai/phobert-base
   freeze: True
-  d_features: 768
+  d_features: 300
   d_model: 512
   dropout: 0.2
 
 model:
-  type_model: bert_cnn
-  name: sentiment_analysis  # Custom name for the model
+  type_model: classify
+  name: sentiment  
   intermediate_dims: 512
   dropout: 0.2
 train:
+  task: sentiment
   output_dir: checkpoint
   seed: 12345
   num_train_epochs: 100
@@ -37,7 +38,7 @@ train:
   warmup_ratio: 0.0
   warmup_steps: 0
   metric_for_best_model: f1
-  train_batch_size: 256
-  eval_batch_size: 256
+  train_batch_size: 2
+  eval_batch_size: 2
 inference:
   batch_size: 512
